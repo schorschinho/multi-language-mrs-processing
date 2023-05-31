@@ -1,0 +1,2 @@
+# multi-language-mrs-processing
+ This project aims to create a standardized library of basic and advanced data processing classes in the most widely used programming languages. The foundational building blocks of this library will be the basic MRS processing steps (zero-filling, line-broadening, concatenating and splitting transients, etc.). As the library grows, more complex methods will be incorporated.
