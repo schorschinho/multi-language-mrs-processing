@@ -106,6 +106,29 @@ classdef niimrs < handle
             tempArray(:,:,:,1:dims(4),:,:,:) = obj.img;
             obj.img = tempArray;
         end
+        
+        function plotAxis = plotFID(obj)
+            % PLOTFID
+            %   For when you want to see the FID
+            
+            % Get FID
+            fid = squeeze(obj.img);
+            
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
+
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
+            
+            plotAxis = plot(t, real(fid));
+            hold on;
+            plot(time, imag(fid));
+            xlabel('Time (s)');
+            legend('real', 'imag');
+            hold off;
+            
+        end
 
         function plotAxis = plotSpec(obj)
 
