@@ -37,6 +37,29 @@ classdef niimrs < handle
 
         end
 
+        function obj = applyFreqShift(obj, freqShift)
+            % applyAmpScale shifts the FID by 'freqShift' Hz.
+            
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
+
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
+           
+            % Determine dimensions:
+            dims = size(obj.img);
+            dims_temp = dims;
+            dims_temp(4) = 1;
+
+            tArray = repmat(t, dims_temp);
+            tArray = reshape(tArray, dims);
+
+            freqShiftFactor = exp(1i*2*pi*tArray*freqShift);
+            obj.img = obj.img .* freqShiftFactor;
+
+        end
+
         function plotAxis = plotSpec(obj)
 
             % PLOTSPEC
@@ -56,11 +79,11 @@ classdef niimrs < handle
             npts = obj.hdr.dim(5);
 
             % Create frequency axis
-            f = [(-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts))];
+            f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
 
             % Convert to ppm
             ppm = -f/f0;
-            ppm = ppm + 4.68;
+            ppm = ppm + obj.returnCenterPPM;
 
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
@@ -74,5 +97,33 @@ classdef niimrs < handle
 
             
         end
+
+        function centerPPM = returnCenterPPM(obj)
+
+            % centerPPM returns the ppm value assigned to the center of a
+            % spectrum depending on the nucleus.
+
+            % Decode the JSON header extension string
+            header_extension = jsondecode(obj.ext.edata_decoded);
+            nucleus = header_extension.ResonantNucleus;
+
+            if iscell(nucleus)              % Is cell
+                nucleus = nucleus{1};       % Get first entry
+            end
+
+            switch strtrim(nucleus)         % Switch nucleus string
+                case '1H'
+                    centerPPM = 4.68;
+                case '2H'
+                    centerPPM = 4.68;
+                case '31P'
+                    centerPPM = 0;
+                otherwise
+                    error('Nucleus %s not supported yet.', nucleus);
+            end
+
+
+        end
+
     end
 end
