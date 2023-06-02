@@ -37,6 +37,13 @@ classdef niimrs < handle
 
         end
 
+        function obj = addNoise(obj, stddev)
+            % adds complex gaussian noise with standard deviation 'stddev'
+            
+            obj.img = obj.img + randn(size(obj.img)) * stddev;
+
+        end
+
         function obj = applyFreqShift(obj, freqShift)
             % applyAmpScale shifts the FID by 'freqShift' Hz.
             
@@ -92,7 +99,7 @@ classdef niimrs < handle
 
 
         function obj = applyZeroFill(obj, factor)
-            % Adds zeros to end of FID data to extend data by factor
+            % Adds zeros to end of FID data to extend data by 'factor'
 
             if factor < 1
                 error("Factor must be at least 1")
