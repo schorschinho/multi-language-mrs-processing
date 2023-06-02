@@ -193,7 +193,38 @@ classdef niimrs < handle
             end
 
         end
+        
+        function t = returnTime(obj)
+            
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
 
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
+            
+        end
+        
+        function ppm = returnPPM(obj)
+            % Get spectral width
+            sw = 1/obj.hdr.pixdim(5);
+
+            % Decode the JSON header extension string
+            header_extension = jsondecode(obj.ext.edata_decoded);
+
+            % Extract F0 and number of samples
+            f0 = header_extension.SpectrometerFrequency;
+            npts = obj.hdr.dim(5);
+
+            % Create frequency axis
+            f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
+
+            % Convert to ppm
+            ppm = -f/f0;
+            ppm = ppm + obj.returnCenterPPM;
+            
+        end
+        
         function gamma = returnGyromagRatio(obj)
 
             % returnGyromagRatio returns the gyromagnetic ratio [MHz/T] 
