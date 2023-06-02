@@ -24,9 +24,49 @@ classdef niimrs < handle
             % applyZeroPhase Applies a zero-order phase shift of 'rads'
             % radians.
             
-            phaseShift = exp(1i*rads);
+            phaseShift = exp(-1i*rads);
             phaseShiftTerm = repmat(phaseShift, size(obj.img));
             obj.img = obj.img .* phaseShiftTerm;
+
+        end
+
+
+        function obj = applyFirstPhase(obj, rads, pivot)
+            % applyFirstPhase Applies a first-order phase shift of 'rads'
+            % radians per ppm with pivot point 'pivot' in ppm
+            
+            if nargin<3
+                pivot = returnCenterPPM(obj);
+            end
+
+            %%%% Calculate the spectrum
+            % Get FID
+            fid = squeeze(obj.img);
+
+            % Get spectral width
+            sw = 1/obj.hdr.pixdim(5);
+
+            % Decode the JSON header extension string
+            header_extension = jsondecode(obj.ext.edata_decoded);
+
+            % Extract F0 and number of samples
+            f0 = header_extension.SpectrometerFrequency;
+            npts = obj.hdr.dim(5);
+
+            % Create frequency axis
+            f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
+
+            % Convert to ppm
+            ppm = -f/f0;
+            ppm = ppm + obj.returnCenterPPM;
+
+            % Calculate and plot the frequency domain spectrum
+            spec = fftshift(fft(fid));
+            %%%% Done calculating spectrum
+
+            spec = spec.' .* exp(-1i*pi*(ppm-pivot));
+
+            obj.img = reshape(ifft(ifftshift(spec)), size(obj.img));
 
         end
 
