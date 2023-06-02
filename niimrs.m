@@ -122,6 +122,35 @@ classdef niimrs < handle
                     error('Nucleus %s not supported yet.', nucleus);
             end
 
+        end
+
+        function gamma = returnGyromagRatio(obj)
+
+            % returnGyromagRatio returns the gyromagnetic ratio [MHz/T] 
+            % for a given nucleus.
+
+            % Decode the JSON header extension string
+            header_extension = jsondecode(obj.ext.edata_decoded);
+            nucleus = header_extension.ResonantNucleus;
+
+            if iscell(nucleus)              % Is cell
+                nucleus = nucleus{1};       % Get first entry
+            end
+
+            switch strtrim(nucleus)             % Switch nucleus string
+                case '1H'
+                    gamma = 42.577478518;
+                case '2H'
+                    gamma = 6.536;
+                case '13C'
+                    gamma = 10.7084;
+                case '19F'
+                    gamma = 40.078;
+                case '31P'
+                    gamma = 17.235;
+                otherwise
+                    error('Nucleus %s not supported yet.', nucleus);
+            end
 
         end
 
