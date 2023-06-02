@@ -60,6 +60,37 @@ classdef niimrs < handle
 
         end
 
+        function obj = applyExpLB(obj, lorLB)
+            % applyExpLB applies exponential linebroadening of 'lorLB' Hz.
+
+            % Intercept zero input to avoid division by zero.
+            if lorLB == 0
+                return;
+            else
+                t2 = 1/(pi*lorLB);
+            end
+
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
+
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
+
+            % Determine dimensions:
+            dims = size(obj.img);
+            dims_temp = dims;
+            dims_temp(4) = 1;
+
+            tArray = repmat(t, dims_temp);
+            tArray = reshape(tArray, dims);
+
+            expLBFactor = exp(-tArray/t2);
+            obj.img = obj.img .* expLBFactor;
+
+        end
+
+
         function obj = applyZeroFill(obj, factor)
             % Adds zeros to end of FID data to extend data by factor
 
