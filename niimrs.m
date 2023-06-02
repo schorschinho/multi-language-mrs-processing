@@ -1,4 +1,4 @@
-classdef niimrs
+classdef niimrs < handle
     % Standardized Processing Library Class
     %   Victor Han
     %   Georg Oeltzschner
@@ -20,7 +20,18 @@ classdef niimrs
             obj.img = temp.img;
         end
 
+        function obj = applyZeroPhase(obj, rads)
+            % applyZeroPhase Applies a zero-order phase shift of 'rads'
+            % radians.
+            
+            phaseShift = exp(1i*rads);
+            phaseShiftTerm = repmat(phaseShift, size(obj.img));
+            obj.img = obj.img .* phaseShiftTerm;
+
+        end
+
         function plotAxis = plotSpec(obj)
+
             % PLOTSPEC
             %   Detailed explanation goes here
 
@@ -39,6 +50,7 @@ classdef niimrs
 
             % Create frequency axis
             f = [(-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts))];
+
             % Convert to ppm
             ppm = -f/f0;
             ppm = ppm + 4.68;
