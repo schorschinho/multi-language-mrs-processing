@@ -60,6 +60,16 @@ classdef niimrs < handle
 
         end
 
+        function obj = applyZeroFill(obj, factor)
+            dims = size(obj.img);
+            dims_temp = dims;
+            dims_temp(4) = dims(4) * factor;
+            obj.hdr.dim(5) = dims_temp(4);
+            tempArray = zeros(dims_temp);
+            tempArray(:,:,:,1:dims(4),:,:,:) = obj.img;
+            obj.img = tempArray;
+        end
+
         function plotAxis = plotSpec(obj)
 
             % PLOTSPEC
