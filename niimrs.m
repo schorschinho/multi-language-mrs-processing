@@ -61,6 +61,12 @@ classdef niimrs < handle
         end
 
         function obj = applyZeroFill(obj, factor)
+            % Adds zeros to end of FID data to extend data by factor
+
+            if factor < 1
+                error("Factor must be at least 1")
+            end
+
             dims = size(obj.img);
             dims_temp = dims;
             dims_temp(4) = dims(4) * factor;
