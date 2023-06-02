@@ -30,6 +30,13 @@ classdef niimrs < handle
 
         end
 
+        function obj = applyAmpScale(obj, scaleFac)
+            % applyAmpScale scales the FID by the factor 'scaleFac'
+            
+            obj.img = obj.img .* scaleFac;
+
+        end
+
         function plotAxis = plotSpec(obj)
 
             % PLOTSPEC
