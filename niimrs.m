@@ -1,5 +1,7 @@
 classdef niimrs < handle
     % Standardized Processing Library Class
+    %   Peter Truong
+    %   Morteza Esmaeili
     %   Victor Han
     %   Georg Oeltzschner
 
