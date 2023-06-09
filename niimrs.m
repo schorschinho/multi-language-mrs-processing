@@ -4,24 +4,24 @@ classdef niimrs < handle
     %   Morteza Esmaeili
     %   Victor Han
     %   Georg Oeltzschner
-
+    
     properties
         hdr % NIfTI-2 header
         ext % NIfTI-MRS header extension
-        img % max-7D complex time-domain data array 
+        img % max-7D complex time-domain data array
     end
-
+    
     methods
         function obj = niimrs(inputFile)
-            % NIIMRS Loads the NIfTI-MRS file 'inputFile' 
+            % NIIMRS Loads the NIfTI-MRS file 'inputFile'
             %   Detailed explanation goes here
             temp = nii_tool('load', inputFile);
-
+            
             obj.hdr = temp.hdr;
             obj.ext = temp.ext;
             obj.img = temp.img;
         end
-
+        
         function obj = applyZeroPhase(obj, rads)
             % applyZeroPhase Applies a zero-order phase shift of 'rads'
             % radians.
@@ -29,9 +29,9 @@ classdef niimrs < handle
             phaseShift = exp(-1i*rads);
             phaseShiftTerm = repmat(phaseShift, size(obj.img));
             obj.img = obj.img .* phaseShiftTerm;
-
+            
         end
-
+        
         function obj = applyFirstPhase(obj, rads, pivot)
             % applyFirstPhase Applies a first-order phase shift of 'rads'
             % radians per ppm with pivot point 'pivot' in ppm
@@ -39,91 +39,91 @@ classdef niimrs < handle
             if nargin<3
                 pivot = returnCenterPPM(obj);
             end
-
+            
             %%%% Calculate the spectrum
             % Get FID
             fid = squeeze(obj.img);
-
+            
             % Get ppm axis
             ppm = returnPPM(obj);
-
+            
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
             %%%% Done calculating spectrum
-
+            
             spec = spec.' .* exp(-1i*rads*(ppm-pivot));
-
+            
             obj.img = reshape(ifft(ifftshift(spec)), size(obj.img));
-
+            
         end
-
+        
         function obj = applyAmpScale(obj, scaleFac)
             % applyAmpScale scales the FID by the factor 'scaleFac'
             
             obj.img = obj.img .* scaleFac;
-
+            
         end
-
+        
         function obj = addNoise(obj, stddev)
             % adds complex gaussian noise with standard deviation 'stddev'
             
             obj.img = obj.img + stddev .* randn(size(obj.img));
-
+            
         end
-
+        
         function obj = applyFreqShift(obj, freqShift)
             % applyAmpScale shifts the FID by 'freqShift' Hz.
             
             % Get time vector
             t = returnTime(obj);
-           
+            
             % Determine dimensions:
             dims = size(obj.img);
             dims_temp = dims;
             dims_temp(4) = 1;
-
+            
             tArray = repmat(t, dims_temp);
             tArray = reshape(tArray, dims);
-
+            
             freqShiftFactor = exp(1i*2*pi*tArray*freqShift);
             obj.img = obj.img .* freqShiftFactor;
-
+            
         end
-
+        
         function obj = applyExpLB(obj, lorLB)
             % applyExpLB applies exponential linebroadening of 'lorLB' Hz.
-
+            
             % Intercept zero input to avoid division by zero.
             if lorLB == 0
                 return;
             else
                 t2 = 1/(pi*lorLB);
             end
-
+            
             % Get time vector
             t = returnTime(obj);
-
+            
             % Determine dimensions:
             dims = size(obj.img);
             dims_temp = dims;
             dims_temp(4) = 1;
-
+            
             tArray = repmat(t, dims_temp);
             tArray = reshape(tArray, dims);
-
+            
             expLBFactor = exp(-tArray/t2);
             obj.img = obj.img .* expLBFactor;
-
+            
         end
-
-
+        
+        
         function obj = applyZeroFill(obj, factor)
             % Adds zeros to end of FID data to extend data by 'factor'
-
+            
             if factor < 1
                 error("Factor must be at least 1")
             end
-
+            
             dims = size(obj.img);
             dims_temp = dims;
             dims_temp(4) = dims(4) * factor;
@@ -153,21 +153,21 @@ classdef niimrs < handle
             hold off;
             
         end
-
+        
         function plotAxis = plotSpec(obj)
-
+            
             % PLOTSPEC
             %   Detailed explanation goes here
-
+            
             % Get FID
             fid = squeeze(obj.img);
             
             % Get ppm axis
             ppm = returnPPM(obj);
-
+            
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
-
+            
             % Plot spectrum
             plotAxis = axes;
             plot(plotAxis, ppm, real(spec));
@@ -177,22 +177,22 @@ classdef niimrs < handle
             xlabel(plotAxis, 'Chemical shift (ppm)');
             legend(plotAxis, 'real', 'imag');
             hold off;
-
+            
         end
-
+        
         function centerPPM = returnCenterPPM(obj)
-
+            
             % centerPPM returns the ppm value assigned to the center of a
             % spectrum depending on the nucleus.
-
+            
             % Decode the JSON header extension string
             header_extension = jsondecode(obj.ext.edata_decoded);
             nucleus = header_extension.ResonantNucleus;
-
+            
             if iscell(nucleus)              % Is cell
                 nucleus = nucleus{1};       % Get first entry
             end
-
+            
             switch strtrim(nucleus)         % Switch nucleus string
                 case '1H'
                     centerPPM = 4.68;
@@ -203,23 +203,23 @@ classdef niimrs < handle
                 otherwise
                     error('Nucleus %s not supported yet.', nucleus);
             end
-
+            
         end
-
+        
         function ppm = returnPPM(obj)
             % Get spectral width
             sw = 1/obj.hdr.pixdim(5);
-
+            
             % Decode the JSON header extension string
             header_extension = jsondecode(obj.ext.edata_decoded);
-
+            
             % Extract F0 and number of samples
             f0 = header_extension.SpectrometerFrequency;
             npts = obj.hdr.dim(5);
-
+            
             % Create frequency axis
             f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
-
+            
             % Convert to ppm
             ppm = -f/f0;
             ppm = ppm + obj.returnCenterPPM;
@@ -227,18 +227,18 @@ classdef niimrs < handle
         end
         
         function gamma = returnGyromagRatio(obj)
-
-            % returnGyromagRatio returns the gyromagnetic ratio [MHz/T] 
+            
+            % returnGyromagRatio returns the gyromagnetic ratio [MHz/T]
             % for a given nucleus.
-
+            
             % Decode the JSON header extension string
             header_extension = jsondecode(obj.ext.edata_decoded);
             nucleus = header_extension.ResonantNucleus;
-
+            
             if iscell(nucleus)              % Is cell
                 nucleus = nucleus{1};       % Get first entry
             end
-
+            
             switch strtrim(nucleus)             % Switch nucleus string
                 case '1H'
                     gamma = 42.577478518;
@@ -253,20 +253,20 @@ classdef niimrs < handle
                 otherwise
                     error('Nucleus %s not supported yet.', nucleus);
             end
-
+            
         end
-
+        
         function t = returnTime(obj)
             % returnTime returns the time vector (in seconds)
-
+            
             % Get dwell time and number of points
             dt = obj.hdr.pixdim(5);
             npts = obj.hdr.dim(5);
-
+            
             % Construct time vector
             t = 0:dt:dt*(npts-1);
-
+            
         end
-
+        
     end
 end
