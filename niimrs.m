@@ -206,18 +206,6 @@ classdef niimrs < handle
 
         end
         
-        function t = returnTime(obj)
-            % returnTime returns the time vector (in seconds)
-            
-            % Get dwell time and number of points
-            dt = obj.hdr.pixdim(5);
-            npts = obj.hdr.dim(5);
-
-            % Construct time vector
-            t = 0:dt:dt*(npts-1);
-            
-        end
-        
         function ppm = returnPPM(obj)
             % Get spectral width
             sw = 1/obj.hdr.pixdim(5);
@@ -265,6 +253,18 @@ classdef niimrs < handle
                 otherwise
                     error('Nucleus %s not supported yet.', nucleus);
             end
+
+        end
+
+        function t = returnTime(obj)
+            % returnTime returns the time vector (in seconds)
+
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
+
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
 
         end
 
