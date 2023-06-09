@@ -6,9 +6,9 @@ classdef niimrs < handle
     %   Georg Oeltzschner
 
     properties
-        hdr
-        ext
-        img
+        hdr % NIfTI-2 header
+        ext % NIfTI-MRS header extension
+        img % max-7D complex time-domain data array 
     end
 
     methods
