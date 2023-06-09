@@ -143,11 +143,13 @@ classdef niimrs < handle
             % Get time vector
             t = returnTime(obj);
             
-            plotAxis = plot(t, real(fid));
+            % Plot FID
+            plotAxis = axes;
+            plot(plotAxis, t, real(fid));
             hold on;
-            plot(time, imag(fid));
-            xlabel('Time (s)');
-            legend('real', 'imag');
+            plot(plotAxis, t, imag(fid));
+            xlabel(plotAxis, 'Time (s)');
+            legend(plotAxis, 'real', 'imag');
             hold off;
             
         end
@@ -165,12 +167,15 @@ classdef niimrs < handle
 
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
-            plotAxis = plot(ppm, real(spec));
+
+            % Plot spectrum
+            plotAxis = axes;
+            plot(plotAxis, ppm, real(spec));
             hold on;
-            plot(ppm, imag(spec));
-            set(gca, 'xdir', 'reverse', 'xlim', [0 5]);
-            xlabel('Chemical shift (ppm)');
-            legend('real', 'imag');
+            plot(plotAxis, ppm, imag(spec));
+            set(plotAxis, 'xdir', 'reverse', 'xlim', [0 5]);
+            xlabel(plotAxis, 'Chemical shift (ppm)');
+            legend(plotAxis, 'real', 'imag');
             hold off;
 
         end
