@@ -267,6 +267,20 @@ classdef niimrs < handle
             t = 0:dt:dt*(npts-1);
             
         end
+
+        function saveNII(obj, outFileName)
+            % saveNII saves the NIfTI-MRS dataset to disk under the name 'outFileName'
+            
+            % Create struct and save the niimrs object properties
+            outFile = struct;
+            outFile.img = obj.img;
+            outFile.hdr = obj.hdr;
+            outFile.ext = obj.ext;
+
+            % Write to disk
+            nii_tool('save', outFile, outFileName, 0);
+            
+        end
         
     end
 end
