@@ -66,7 +66,7 @@ classdef niimrs < handle
             spec = fftshift(fft(fid));
             %%%% Done calculating spectrum
 
-            spec = spec.' .* exp(-1i*pi*(ppm-pivot));
+            spec = spec.' .* exp(-1i*rads*(ppm-pivot));
 
             obj.img = reshape(ifft(ifftshift(spec)), size(obj.img));
 
