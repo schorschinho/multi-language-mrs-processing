@@ -45,22 +45,8 @@ classdef niimrs < handle
             % Get FID
             fid = squeeze(obj.img);
 
-            % Get spectral width
-            sw = 1/obj.hdr.pixdim(5);
-
-            % Decode the JSON header extension string
-            header_extension = jsondecode(obj.ext.edata_decoded);
-
-            % Extract F0 and number of samples
-            f0 = header_extension.SpectrometerFrequency;
-            npts = obj.hdr.dim(5);
-
-            % Create frequency axis
-            f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
-
-            % Convert to ppm
-            ppm = -f/f0;
-            ppm = ppm + obj.returnCenterPPM;
+            % Get ppm axis
+            ppm = returnPPM(obj);
 
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
