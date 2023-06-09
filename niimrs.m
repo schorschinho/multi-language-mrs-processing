@@ -32,7 +32,6 @@ classdef niimrs < handle
 
         end
 
-
         function obj = applyFirstPhase(obj, rads, pivot)
             % applyFirstPhase Applies a first-order phase shift of 'rads'
             % radians per ppm with pivot point 'pivot' in ppm
@@ -68,7 +67,7 @@ classdef niimrs < handle
         function obj = addNoise(obj, stddev)
             % adds complex gaussian noise with standard deviation 'stddev'
             
-            obj.img = obj.img + randn(size(obj.img)) * stddev;
+            obj.img = obj.img + stddev .* randn(size(obj.img));
 
         end
 
@@ -230,6 +229,7 @@ classdef niimrs < handle
         end
         
         function t = returnTime(obj)
+            % returnTime returns the time vector (in seconds)
             
             % Get dwell time and number of points
             dt = obj.hdr.pixdim(5);
