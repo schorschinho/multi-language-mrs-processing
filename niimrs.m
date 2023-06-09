@@ -175,18 +175,6 @@ classdef niimrs < handle
 
         end
 
-        function t = returnTime(obj)
-            % returnTime returns the time vector (in seconds)
-
-            % Get dwell time and number of points
-            dt = obj.hdr.pixdim(5);
-            npts = obj.hdr.dim(5);
-
-            % Construct time vector
-            t = 0:dt:dt*(npts-1);
-            
-        end
-
         function centerPPM = returnCenterPPM(obj)
 
             % centerPPM returns the ppm value assigned to the center of a
