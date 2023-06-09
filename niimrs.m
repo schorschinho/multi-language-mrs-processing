@@ -74,12 +74,8 @@ classdef niimrs < handle
         function obj = applyFreqShift(obj, freqShift)
             % applyAmpScale shifts the FID by 'freqShift' Hz.
             
-            % Get dwell time and number of points
-            dt = obj.hdr.pixdim(5);
-            npts = obj.hdr.dim(5);
-
-            % Construct time vector
-            t = 0:dt:dt*(npts-1);
+            % Get time vector
+            t = returnTime(obj);
            
             % Determine dimensions:
             dims = size(obj.img);
@@ -104,12 +100,8 @@ classdef niimrs < handle
                 t2 = 1/(pi*lorLB);
             end
 
-            % Get dwell time and number of points
-            dt = obj.hdr.pixdim(5);
-            npts = obj.hdr.dim(5);
-
-            % Construct time vector
-            t = 0:dt:dt*(npts-1);
+            % Get time vector
+            t = returnTime(obj);
 
             % Determine dimensions:
             dims = size(obj.img);
@@ -148,12 +140,8 @@ classdef niimrs < handle
             % Get FID
             fid = squeeze(obj.img);
             
-            % Get dwell time and number of points
-            dt = obj.hdr.pixdim(5);
-            npts = obj.hdr.dim(5);
-
-            % Construct time vector
-            t = 0:dt:dt*(npts-1);
+            % Get time vector
+            t = returnTime(obj);
             
             plotAxis = plot(t, real(fid));
             hold on;
@@ -172,22 +160,8 @@ classdef niimrs < handle
             % Get FID
             fid = squeeze(obj.img);
 
-            % Get spectral width
-            sw = 1/obj.hdr.pixdim(5);
-
-            % Decode the JSON header extension string
-            header_extension = jsondecode(obj.ext.edata_decoded);
-
-            % Extract F0 and number of samples
-            f0 = header_extension.SpectrometerFrequency;
-            npts = obj.hdr.dim(5);
-
-            % Create frequency axis
-            f = (-sw/2)+(sw/(2*npts)):sw/(npts):(sw/2)-(sw/(2*npts));
-
-            % Convert to ppm
-            ppm = -f/f0;
-            ppm = ppm + obj.returnCenterPPM;
+            % Get ppm axis
+            ppm = returnPPM(obj);
 
             % Calculate and plot the frequency domain spectrum
             spec = fftshift(fft(fid));
@@ -199,6 +173,17 @@ classdef niimrs < handle
             legend('real', 'imag');
             hold off;
 
+        end
+
+        function t = returnTime(obj)
+            % returnTime returns the time vector (in seconds)
+
+            % Get dwell time and number of points
+            dt = obj.hdr.pixdim(5);
+            npts = obj.hdr.dim(5);
+
+            % Construct time vector
+            t = 0:dt:dt*(npts-1);
             
         end
 
