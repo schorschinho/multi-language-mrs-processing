@@ -161,7 +161,7 @@ classdef niimrs < handle
 
             % Get FID
             fid = squeeze(obj.img);
-
+            
             % Get ppm axis
             ppm = returnPPM(obj);
 
@@ -205,7 +205,7 @@ classdef niimrs < handle
             end
 
         end
-        
+
         function ppm = returnPPM(obj)
             % Get spectral width
             sw = 1/obj.hdr.pixdim(5);
