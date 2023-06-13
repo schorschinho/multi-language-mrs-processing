@@ -14,7 +14,7 @@ There are several additional example data in the folder 'examples' under <https:
 
 MATLAB: <https://github.com/schorschinho/nifti-mrs-matlab> (you can use the svs_preprocessed.nii.gz file in this repository!)
 Python: <https://github.com/wtclarke/nifti_mrs_tools>
-R: <https://martin3141.github.io/spant/>
+R: <https://martin3141.github.io/spant/> & <https://github.com/jonclayden/RNifti/>
 
 ### ... just code :-)
 
